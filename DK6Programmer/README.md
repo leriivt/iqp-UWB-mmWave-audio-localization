@@ -1,4 +1,4 @@
-#use the DK6Programmer to flash the 2BPs
+## use the DK6Programmer to flash the 2BPs
 
 run: (make sure to change the COM port to the correct number)
 ```bash
