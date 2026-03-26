@@ -1,3 +1,5 @@
+# how to setup rpis to do localization w/audio
+
 - ssh into rpi
 
 - cd into the uwb-localization-mesh directory
