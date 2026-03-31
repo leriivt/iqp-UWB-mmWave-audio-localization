@@ -1,0 +1,31 @@
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+ 
+# 创建热力图数据
+def create_heatmap_data():
+    rs = np.random.RandomState(10)
+    return rs.rand(10, 10)
+ 
+# 创建热力图
+def create_heatmap():
+    data = create_heatmap_data()
+    fig, ax = plt.subplots()
+    cmap = sns.color_palette("rocket", as_cmap=True)
+    ax = sns.heatmap(data, cmap=cmap, ax=ax)
+    return fig
+ 
+root = tk.Tk()
+root.title("Heatmap Example")
+ 
+# 创建热力图
+heatmap_figure = create_heatmap()
+ 
+# 将热力图嵌入到Tkinter
+canvas = FigureCanvasTkAgg(heatmap_figure, master=root)
+canvas.draw()
+canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
+ 
+root.mainloop()
