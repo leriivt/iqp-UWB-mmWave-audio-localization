@@ -16,3 +16,10 @@ Enter the DK6Programmer directory:
 ```bash
 cd DK6Programmer
 ```
+
+Plug your laptop into the UWB board.
+
+//UNDER CONSTRUCTION
+
+## 5. Running the measurement gathering code
+The python files that you need to run can be found in
