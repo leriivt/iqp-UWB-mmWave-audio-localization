@@ -17,7 +17,7 @@ To activate venv:
 `source ~/venvs/MS72SF1/bin/activate`
 
 Install necessary libraries:
-`pip install Pillow matplotlib psutil`
+`pip install Pillow matplotlib psutil pyserial`
 ## 4. Go do directory where mmWave.py is located and run
 `cd ~/iqp-UWB-mmWave-audio-localization/mmWave/60GHz_MS72SF1/dev_tools/MinewSemi_MS72SF1_Host_Source_Code/mmWave`
 
