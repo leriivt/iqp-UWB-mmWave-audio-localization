@@ -1,0 +1,30 @@
+This site contains SDK of Type2BP UWB Module.
+CONTENTS:
+SDK              :UWBIOT_SR150_v04.08.01_MCUx.zip
+Patch            :2bp_prebuild_v04.08.01.patch
+Prebuild Binary  :2bp_controlee_v04.08.01.bin
+                  2bp_controller_v04.08.01.bin
+                  2bp_NearbyInteraction_v04.08.01.bin
+PnP Script files :Not include in this release.
+Readme           :README(This file)
+
+For a simple operation check, we recommend first verifying operation in PnP mode. 
+To operate PnP mode with SDK v04.08.01, you must write the binary file for PnP in this SDK version to the EVK. Additionally, you must launch the script file on the PC side.
+See the Quick Start Guide for more information.
+
+For the PnP script file for SDK v04.08.01, please use the file for SDK v04.06.05
+(Compatible with PnP script files from SDK v04.06.05)
+https://my.murata.com/documents/d/type2bp-002/mtd-scp-144_ds-twr_sr150_unicast_v04-06-05_rev1-0
+
+For PnP mode binary files, write the following files included in SDK to Type2BP-EVK.
+UWBIOT_SR150_v04.08.01_MCUx\uwbiot-top\binaries\Rhodes4\pnp3MFW_Rhodes4_SR150-v04.08.01.bin
+
+While the SDK provided by NXP is designed for Rhodes4 board which is NXP's reference board, adjustments need to be made to reflect settings for the Type2BP EVK.
+By applying the included patch file, you can ensure optimal performance, so please make sure to apply the patch file. 
+
+Please refer to How to make Pre-built binary for instructions on how to apply the patch file.
+Additionally, Starting Software Development Guide describes a series of operation steps, so please use this guide as a reference for evaluation.
+
+Furthermore, we have included binary files(Prebuild Binary) of sample demo applications built with the SDK that has had the patch file applied. 
+Please also make use of these binary files. For instructions on how to verify prebuilt binary files, refer to the How to make Pre-built binary.
+
