@@ -8,7 +8,7 @@ the raspberry pi password is the same as the hostname
 If on Windows, make sure to point the DISPLAY variable to Xming (or whatever X server you are using)
 
 Run:
-`export DISPLAY=localhost:0.0`
+`export DISPLAY=<YOUR_PC_IP>:0.0`
 ## 3. Make sure the necessary libraries are installed
 To make venv:
 `python3 -m venv ~/venvs/MS72SF1`
