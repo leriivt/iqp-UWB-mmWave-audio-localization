@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     ico_name = ico_display.get_ico()
     # print("ico name = ", ico_name)
-    root.iconbitmap(ico_name)
+    #root.iconbitmap(ico_name)
     # 设置窗口关闭响应函数
     root.protocol("WM_DELETE_WINDOW", quit_application)
     # root.resizable(False,False)
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     canvas.place(x=-2,y=-2)
 
     # 加载背景图片
-    image = Image.open(".\mmWave_map.png")  # 替换为你的图片路径
+    image = Image.open("./mmWave_map.png")  # 替换为你的图片路径
     image = ImageTk.PhotoImage(image)
     
     # 在Canvas上添加背景图片
