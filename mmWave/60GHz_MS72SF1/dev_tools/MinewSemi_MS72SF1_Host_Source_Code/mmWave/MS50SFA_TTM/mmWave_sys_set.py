@@ -9,7 +9,7 @@ import MS50SFA_TTM.Format_conversion as Format_conversion
 import system.sys_data as sys_data
 
 
-file_path = ".\MS72SFx_config.ini"
+file_path = "./MS72SFx_config.ini"
 if os.path.exists(file_path):
     print("文件存在")
     try:
@@ -301,19 +301,19 @@ class mmWave_button_ui(object):
         self.mmWave_Send_data = sys_data.SYS_mmWave_write
         self.mmWave_start_option = mmWave_start_option
 
-        self.set_start_MS72SF_BUTTON = ttk.Button(frame_1, text="开始", width=12, command=self.set_start_MS72SF)
+        self.set_start_MS72SF_BUTTON = ttk.Button(frame_1, text="开始 (Start)", width=12, command=self.set_start_MS72SF)
         self.set_start_MS72SF_BUTTON.grid(column=0,row=0)
-        ttk.Button(frame_1, text="结束", width=12, command=self.set_stop_MS72SF).grid(column=1,row=0,pady=5)
+        ttk.Button(frame_1, text="结束 (Stop)", width=12, command=self.set_stop_MS72SF).grid(column=1,row=0,pady=5)
 
-        ttk.Button(frame_1, text="恢复默认设置", width=12, command=self.set_Restore_default_Settings_MS72SF).grid(column=2,row=1,padx=25)
-        ttk.Button(frame_1, text="模块复位", width=12, command=self.set_reset_MS72SF).grid(column=1,row=1,padx=20,pady=5)
-        ttk.Button(frame_1, text="度版本号及参数", width=12, command=self.set_read_ver_MS72SF).grid(column=0,row=1,padx=20)
+        ttk.Button(frame_1, text="恢复默认设置 (Restore Default Settings)", width=36, command=self.set_Restore_default_Settings_MS72SF).grid(column=1,row=1,padx=25)
+        ttk.Button(frame_1, text="模块复位 (Module Reset)", width=24, command=self.set_reset_MS72SF).grid(column=0,row=1,padx=20,pady=5)
+        ttk.Button(frame_1, text="读取版本号及参数 (Read Version and Parameters)", width=36, command=self.set_read_ver_MS72SF).grid(column=1,row=2,padx=20)
 
-        ttk.Button(frame_1, text="学习", width=12, command=self.set_study_MS72SF).grid(column=0,row=2,pady=5)
+        ttk.Button(frame_1, text="学习 (Learn)", width=12, command=self.set_study_MS72SF).grid(column=0,row=2,pady=5)
 
     def set_start_MS72SF(self):
         self.set_start_MS72SF_BUTTON["state"] = "disable"
-        self.mmWave_Send_data.name = "开始"
+        self.mmWave_Send_data.name = "开始 (Start)"
         self.mmWave_Send_data.command = "AT+START"
         self.mmWave_Send_data.data = ""
         self.mmWave_Send_data.send_min = 0
@@ -331,7 +331,7 @@ class mmWave_button_ui(object):
         self.mmWave_start_option(1)
 
     def set_stop_MS72SF(self):
-        self.mmWave_Send_data.name = "结束"
+        self.mmWave_Send_data.name = "结束 (Stop)"
         self.mmWave_Send_data.command = "AT+STOP"
         self.mmWave_Send_data.data = ""
         self.mmWave_Send_data.send_min = 0
@@ -347,7 +347,7 @@ class mmWave_button_ui(object):
         self.set_start_MS72SF_BUTTON["state"] = "enable"
 
     def set_reset_MS72SF(self):
-        self.mmWave_Send_data.name = "模块复位"
+        self.mmWave_Send_data.name = "模块复位 (Module Reset)"
         self.mmWave_Send_data.command = "AT+RESET"
         self.mmWave_Send_data.data = ""
         self.mmWave_Send_data.send_min = 0
@@ -359,7 +359,7 @@ class mmWave_button_ui(object):
         mmWave_Send_data_Parameter_validity_check(self.mmWave_Send_data, self.uart, self.uart_ui)
     
     def set_study_MS72SF(self):
-        self.mmWave_Send_data.name = "学习"
+        self.mmWave_Send_data.name = "学习 （learn）"
         self.mmWave_Send_data.command = "AT+STUDY"
         self.mmWave_Send_data.data = ""
         self.mmWave_Send_data.send_min = 0
@@ -371,7 +371,7 @@ class mmWave_button_ui(object):
         mmWave_Send_data_Parameter_validity_check(self.mmWave_Send_data, self.uart, self.uart_ui)
     
     def set_read_ver_MS72SF(self):
-        self.mmWave_Send_data.name = "读版本号及参数"
+        self.mmWave_Send_data.name = "读版本号及参数 (Read Version and Parameters)"
         self.mmWave_Send_data.command = "AT+READ"
         self.mmWave_Send_data.data = ""
         self.mmWave_Send_data.send_min = 0
@@ -383,7 +383,7 @@ class mmWave_button_ui(object):
         mmWave_Send_data_Parameter_validity_check(self.mmWave_Send_data, self.uart, self.uart_ui)
     
     def set_Restore_default_Settings_MS72SF(self):
-        self.mmWave_Send_data.name = "恢复默认设置"
+        self.mmWave_Send_data.name = "恢复默认设置 (Restore Default Settings)"
         self.mmWave_Send_data.command = "AT+RESTORE"
         self.mmWave_Send_data.data = ""
         self.mmWave_Send_data.send_min = 0
@@ -403,19 +403,19 @@ class mmWave_autoSet_ui(object):
 
         self.send_argument_list = []
 
-        tk.Label(frame_1, text="选择参数").place(x=30,y=20)
+        tk.Label(frame_1, text="选择参数 (Select Parameters)").place(x=30,y=20)
         sections = MS72SFx_config.sections()
         # this_combobox_value = []
         # for item in sections:
         #     this_combobox_value.append(item)
         self.set_autoSet_combobox = ttk.Combobox(frame_1, values=sections, width=15)
         self.set_autoSet_combobox.place(x=260,y=20)
-        self.set_autoSet_combobox.set(str(len(sections)) + " 组参数")
+        self.set_autoSet_combobox.set(str(len(sections)) + " 组参数 (sets of parameters)")
         # self.set_YPosiD_combobox.current(0)
         # 绑定选择事件到函数
         self.set_autoSet_combobox.bind("<<ComboboxSelected>>", self.add_argument_to_listbox)
         
-        ttk.Button(frame_1, text="发送全部", width=12, command=self.set_all_MS72SF).place(x=120,y=20)
+        ttk.Button(frame_1, text="发送全部 (Send All)", width=12, command=self.set_all_MS72SF).place(x=120,y=20)
 
         # 创建一个Scrollbar和Text组件，并将它们关联
         scrollbar_listbox = tk.Scrollbar(frame_1)
@@ -433,7 +433,7 @@ class mmWave_autoSet_ui(object):
         self.send_argument_list = []
         for item in this_option_list:
             value = MS72SFx_config.get(this_sections, item)
-            print(item, " 设定指令 ", value)
+            print(item, " 设定指令 (Setting Command)", value)
             self.MS72SF_argument_Listbox.insert("end", value)
             self.send_argument_list.append(value)
         
@@ -441,7 +441,7 @@ class mmWave_autoSet_ui(object):
     def set_all_MS72SF(self):
         # 发送指令
         if len(self.send_argument_list) == 0:
-            self.uart_ui.this_rev_Text.insert("end", "空列表，不能发送\r\n")
+            self.uart_ui.this_rev_Text.insert("end", "空列表，不能发送 (Empty list, cannot send)\r\n")
             print("空列表，不能设置")
             return
         
@@ -503,7 +503,7 @@ class mmWave_autoSet_ui(object):
 
         err_len1 = len(err_command_list)
         if err_len1 == 0:
-            self.uart_ui.this_rev_Text.insert("end", "全部指令发送成功\r\n")
+            self.uart_ui.this_rev_Text.insert("end", "全部指令发送成功 (All commands sent successfully)\r\n")
         else:
             self.uart_ui.this_rev_Text.insert("end", "有" + str(err_len1) + "条指令发送错误\r\n")
 

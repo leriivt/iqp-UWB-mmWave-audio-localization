@@ -91,7 +91,7 @@ class UartInfo(object):
             self.ReadData_Thread_hand.start()
             self.uart_data_ana_Thread_hand.start()
                 
-            self.ui.this_open_button["text"] = "关闭"
+            self.ui.this_open_button["text"] = "关闭 (close)"
             self.ui.this_com_combobox["state"] = "disable"
             self.ui.this_btl_combobox["state"] = "disable"
             self.ui.this_uart_com_update_button["state"] = "disable"

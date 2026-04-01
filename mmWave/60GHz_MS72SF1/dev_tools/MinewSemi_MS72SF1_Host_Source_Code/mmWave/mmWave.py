@@ -137,15 +137,15 @@ if __name__ == "__main__":
     # 创建第一个页面
     frame1 = ttk.Frame(notebook)
     # frame1.bind("<FocusIn>", lambda event: on_tab_changed(event))
-    notebook.add(frame1, text="坐标显示")
+    notebook.add(frame1, text="坐标显示 (Coordinate Display)")
     
     frame3 = ttk.Frame(notebook)
     # frame1.bind("<FocusIn>", lambda event: on_tab_changed(event))
-    notebook.add(frame3, text="曲线查看")
+    notebook.add(frame3, text="曲线查看 (Curve View)")
     # 创建第2个页面
     frame2 = ttk.Frame(notebook)
     # frame1.bind("<FocusIn>", lambda event: on_tab_changed(event))
-    notebook.add(frame2, text="参数设置")
+    notebook.add(frame2, text="参数设置 (Parameter Settings)")
 
     # trx 指令显示Frame控件
     frame_uart = tk.Frame(frame2, width=350, height=800)
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     uart_ui_1.window = root
 
     # 创建一个Frame控件
-    frame_MS50SFA_TTM_Ctrl = tk.LabelFrame(frame2, text="连接", width=500, height=500, relief="raised")
+    frame_MS50SFA_TTM_Ctrl = tk.LabelFrame(frame2, text="连接 (Connection)", width=500, height=500, relief="raised")
     frame_MS50SFA_TTM_Ctrl.place(x=10, y=10)
     MS50SFA_connect_ui_4 = MS50SFA_connect_ui_ca.MS50SFA_Connect_ui(frame_MS50SFA_TTM_Ctrl, uart_ctl_1, uart_ui_1)
 
@@ -173,16 +173,16 @@ if __name__ == "__main__":
     
     # 创建第1个页面
     frame1_mmWave = ttk.Frame(notebook)
-    notebook_mmWave.add(frame1_mmWave, text="设置")
+    notebook_mmWave.add(frame1_mmWave, text="设置 (Parameter Setting)")
     # 创建第2个页面
     frame2_mmWave = ttk.Frame(notebook)
-    notebook_mmWave.add(frame2_mmWave, text="单项")
+    notebook_mmWave.add(frame2_mmWave, text="单项 (Single Setting)")
 
-    frame_MS50SFA_TTM_Ctrl = tk.LabelFrame(frame2_mmWave, text="MS72SF2 初始化", width=500, height=500, relief="raised")
+    frame_MS50SFA_TTM_Ctrl = tk.LabelFrame(frame2_mmWave, text="MS72SF2 初始化 (Initialization)", width=500, height=500, relief="raised")
     frame_MS50SFA_TTM_Ctrl.place(x=10, y=10)
     mmWave_sys_set_ui_2 = mmWave_sys_set_ca.mmWave_sys_set_ui(frame_MS50SFA_TTM_Ctrl, uart_ctl_1, uart_ui_1)
 
-    frame_mmWave_autoSet_Ctrl = tk.LabelFrame(frame1_mmWave, text="MS72SF2 初始化设置", width=430, height=400, relief="raised")
+    frame_mmWave_autoSet_Ctrl = tk.LabelFrame(frame1_mmWave, text="MS72SF2 初始化设置 (Initialization Settings)", width=430, height=400, relief="raised")
     frame_mmWave_autoSet_Ctrl.place(x=10, y=10)
     mmWave_autoSet_ui_2 = mmWave_sys_set_ca.mmWave_autoSet_ui(frame_mmWave_autoSet_Ctrl, uart_ctl_1, uart_ui_1)
     
@@ -213,7 +213,7 @@ if __name__ == "__main__":
     print("加载图片完成")
     mmWave_1 = mmWave_ui_ca.mmWave_ui(frame_MS50SFA_TTM_set, uart_ctl_1, uart_ui_1, frame1, canvas, mmWave_curve_ui_2.person_data_q)
 
-    frame_mmWave_button_Ctrl = tk.LabelFrame(frame2, text="MS72SF2 控制", width=50, height=500, relief="raised")
+    frame_mmWave_button_Ctrl = tk.LabelFrame(frame2, text="MS72SF2 控制 (Control)", width=50, height=500, relief="raised")
     frame_mmWave_button_Ctrl.place(x=10, y=90)
     mmWave_button_ui_2 = mmWave_sys_set_ca.mmWave_button_ui(frame_mmWave_button_Ctrl, uart_ctl_1, uart_ui_1, mmWave_1.mmWave_start_option)
     

@@ -16,7 +16,7 @@ def make_file_name_from_picture_name(image_name):
     s2 = file_name.split('.')
     module_name = s2[0]
 
-    current_path += "\img\\"
+    current_path += "\\img\\"
     image_patch = os.path.join(current_path, file_name)
     python_file_name = module_name + ".py"
     python_file_patch = os.path.join(current_path, python_file_name)
