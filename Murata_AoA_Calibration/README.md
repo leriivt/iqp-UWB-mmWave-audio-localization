@@ -56,3 +56,15 @@ The python files that you need to run can be found in the `/MTD-SCP-144_DS-TWR_S
 cd ~/iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration/MTD-SCP-144_DS-TWR_SR150_Unicast_v04.06.05_Rev1.0
 ```
 
+During calibration there will be an **initiator** and a **responder**. The **initiator** is the board being calibrated (ceiling) and the **responder** is the accompanying board.
+
+For the **initiatior**, run (make sure to replace <COM_NUMBER>):
+```bash
+python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i <COM_NUMBER> 
+```
+
+For the **responder**, run (make sure to replace <COM_NUMBER>):
+```bash
+python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 
+```
+
