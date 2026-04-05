@@ -1,6 +1,16 @@
 # Murata AoA calibration guide
 ## 0. Pre-reqs:
 Install Python: https://www.python.org/downloads/
+
+Make sure the necessary libraries are installed to a virtual environment:
+To make venv:
+`python3 -m venv ~/venvs/AoA_calibration`
+
+To activate venv:
+`source ~/venvs/AoA_calibration/bin/activate`
+
+Install necessary libraries:
+`pip install Pillow matplotlib psutil pyserial`
 ## 1. Clone this repository
 Run the following in Windows Powershell:
 ```bash
@@ -39,4 +49,9 @@ run: (make sure to change the COM port to the correct number)
 Successful flashing ends with the message: `Memory Programmed Sucessfully`
 
 ## 5. Running the measurement gathering code
-The python files that you need to run can be found in
+The python files that you need to run can be found in the `/MTD-SCP-144_DS-TWR_SR150_Unicast_v04.06.05_Rev1.0` directory.
+
+```bash
+cd ~/iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration/MTD-SCP-144_DS-TWR_SR150_Unicast_v04.06.05_Rev1.0
+```
+
