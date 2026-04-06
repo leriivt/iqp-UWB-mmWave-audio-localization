@@ -51,8 +51,6 @@ run: (make sure to **change the COM port** to the correct number)
 .\DK6Programmer.exe -V 0 -P 1000000 -s COM12 -Y -p pnp3MFW_Rhodes4_SR150-v04.08.01.bin
 ```
 
-`pnp3MFW_Rhodes4_SR150-v04.08.01.bin` file should flash the boards for pnp mode needed for calibration and directly found in the Rhodes SDK
-
 Successful flashing ends with the message: `Memory Programmed Sucessfully`
 
 ## 5. Running the measurement gathering code
