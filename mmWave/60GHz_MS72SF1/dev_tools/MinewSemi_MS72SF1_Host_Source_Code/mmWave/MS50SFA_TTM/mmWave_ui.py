@@ -298,7 +298,7 @@ def get_str_and_struc_form_str(rev_str):
     get_SYS_mmWave_Personnel_Frame.new_id = rev_str[:16]
 
     get_SYS_mmWave_Personnel_Frame.x = 0 - x * 100 + 300
-    get_SYS_mmWave_Personnel_Frame.y = y * 100 + 300  #0 - y * 100 + 300
+    get_SYS_mmWave_Personnel_Frame.y = 0 - y * 100 + 300  #0 - y * 100 + 300
     get_SYS_mmWave_Personnel_Frame.z = z * 100 + 300
                         
     get_SYS_mmWave_Personnel_Frame.speed_x = speed_x
