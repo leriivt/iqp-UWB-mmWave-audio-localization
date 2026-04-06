@@ -8,7 +8,7 @@ To make venv:
 `python3 -m venv ~/venvs/AoA_calibration`
 
 To activate venv:
-`source ~/venvs/AoA_calibration/bin/activate`
+`./~/venvs/AoA_calibration/Scripts/Activate.ps1`
 
 Install necessary libraries:
 `pip install Pillow matplotlib psutil pyserial`
