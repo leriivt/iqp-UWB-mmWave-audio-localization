@@ -60,11 +60,14 @@ During calibration there will be an **initiator** and a **responder**. The **ini
 
 For the **initiatior**, run (make sure to replace <COM_NUMBER>):
 ```bash
-python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i <COM_NUMBER> 
+python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i <COM_NUMBER> 30
 ```
 
 For the **responder**, run (make sure to replace <COM_NUMBER>):
 ```bash
-python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 
+python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 30
 ```
 
+Note: the `30` tells the code to run for 30 valid measurements
+
+The measurements taken by the board during calibration should get stored in CSV files that are labeled in the format `ranging_<role>_<date>_<time>.csv` (ex: `ranging_Initiator_20260406_143022.csv`)
