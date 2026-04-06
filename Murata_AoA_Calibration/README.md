@@ -14,7 +14,7 @@ To activate venv:
 >Set-ExecutionPolicy Unrestricted -Scope Process
 >```
 
-Install necessary libraries:
+**Install necessary libraries:**
 `pip zmq pyserial matplotlib numpy pycryptodome PyYAML`
 ## 1. Clone this repository
 Run the following in Windows Powershell:
