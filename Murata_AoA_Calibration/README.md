@@ -69,7 +69,7 @@ For the **initiatior**, run (make sure to **replace COM12** with correct port):
 python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i COM12 30
 ```
 
-For the **responder**, run (make sure to **replace** COM12 with correct port):
+For the **responder**, run (make sure to **replace COM12** with correct port):
 ```bash
 python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r COM12 30
 ```
