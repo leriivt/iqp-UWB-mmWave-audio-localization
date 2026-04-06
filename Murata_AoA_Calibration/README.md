@@ -71,3 +71,5 @@ python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 30
 Note: the `30` tells the code to run for 30 valid measurements
 
 The measurements taken by the board during calibration should get stored in CSV files that are labeled in the format `ranging_<role>_<date>_<time>.csv` (ex: `ranging_Initiator_20260406_143022.csv`)
+
+CSVs are stored in `./Murata_AoA_Calibration/MTD-SCP-144_DS-TWR_SR150_Unicast_v04.06.05_Rev1.0/test_data`
