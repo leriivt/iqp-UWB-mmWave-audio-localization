@@ -4,19 +4,25 @@ Install Python: https://www.python.org/downloads/
 
 Make sure the necessary libraries are installed to a virtual environment:
 
-To make venv:
+To make venv, open **Windows Powershell** and run:
 `python3 -m venv ~/venvs/AoA_calibration`
 
 To activate venv:
 `./~/venvs/AoA_calibration/Scripts/Activate.ps1`
+>When trying to acitvate the venv you may get an error due to restricted Script exection. If so, run the following and try activating again:
+>```bash
+>Set-ExecutionPolicy Unrestricted -Scope Process
+>```
 
 Install necessary libraries:
 `pip zmq pyserial matplotlib numpy pycryptodome PyYAML`
 ## 1. Clone this repository
 Run the following in Windows Powershell:
 ```bash
-git clone git@github.com:leriivt/iqp-UWB-mmWave-audio-localization.git
+git clone https://github.com/leriivt/iqp-UWB-mmWave-audio-localization.git
 ```
+
+>If you don't have have git installed, you could alternatively download the repo from the web as a zip file or use [VSCode](https://www.jcchouinard.com/git-clone-github-repository-vscode/)
 ## 2. Enter the Murata_AoA_Calibration directory
 ```bash
 cd ~/iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration
@@ -60,12 +66,12 @@ During calibration there will be an **initiator** and a **responder**. The **ini
 
 For the **initiatior**, run (make sure to replace <COM_NUMBER>):
 ```bash
-python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i <COM_NUMBER> 30
+python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i <COM_NUMBER> 30
 ```
 
 For the **responder**, run (make sure to replace <COM_NUMBER>):
 ```bash
-python3 -m MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 30
+python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 30
 ```
 
 Note: the `30` tells the code to run for 30 valid measurements
