@@ -27,7 +27,7 @@ git clone https://github.com/leriivt/iqp-UWB-mmWave-audio-localization.git
 ```bash
 cd ./iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration
 ```
-## 2. Install FTDI Drivers
+## 3. Install FTDI Drivers
 Run
 ```bash
 ./CDM2123620_Setup.exe
@@ -64,14 +64,14 @@ cd ~/iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration/MTD-SCP-144_DS-TWR
 
 During calibration there will be an **initiator** and a **responder**. The **initiator** is the board being calibrated (ceiling) and the **responder** is the accompanying board.
 
-For the **initiatior**, run (make sure to replace <COM_NUMBER>):
+For the **initiatior**, run (make sure to **replace COM12** with correct port):
 ```bash
-python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i <COM_NUMBER> 30
+python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py i COM12 30
 ```
 
-For the **responder**, run (make sure to replace <COM_NUMBER>):
+For the **responder**, run (make sure to **replace** COM12 with correct port):
 ```bash
-python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r <COM_NUMBER> 30
+python3 MTD-SCP-144_DS-TWR_SR150_Unicast_v040605_Rev1p0.py r COM12 30
 ```
 
 Note: the `30` tells the code to run for 30 valid measurements
