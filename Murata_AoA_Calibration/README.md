@@ -9,7 +9,7 @@ To make venv, open **Windows Powershell** and run:
 
 To activate venv:
 `./~/venvs/AoA_calibration/Scripts/Activate.ps1`
->When trying to acitvate the venv you may get an error due to restricted Script exection. If so, run the following and try activating again:
+>When trying to acitvate the venv you may get an error due to restricted Script execution. If so, run the following and try activating again:
 >```bash
 >Set-ExecutionPolicy Unrestricted -Scope Process
 >```
@@ -25,7 +25,7 @@ git clone https://github.com/leriivt/iqp-UWB-mmWave-audio-localization.git
 >If you don't have have git installed, you could alternatively download the repo from the web as a zip file or use [VSCode](https://www.jcchouinard.com/git-clone-github-repository-vscode/)
 ## 2. Enter the Murata_AoA_Calibration directory
 ```bash
-cd ~/iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration
+cd ./iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration
 ```
 ## 2. Install FTDI Drivers
 Run
