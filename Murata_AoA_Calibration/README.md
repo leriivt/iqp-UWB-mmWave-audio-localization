@@ -27,7 +27,7 @@ git clone https://github.com/leriivt/iqp-UWB-mmWave-audio-localization.git
 ```bash
 cd ./iqp-UWB-mmWave-audio-localization/Murata_AoA_Calibration
 ```
-## 3. Install FTDI Drivers
+## 3. Install [FTDI COM Port Driver](https://ftdichip.com/drivers/vcp-drivers/)
 Run
 ```bash
 ./CDM2123620_Setup.exe
