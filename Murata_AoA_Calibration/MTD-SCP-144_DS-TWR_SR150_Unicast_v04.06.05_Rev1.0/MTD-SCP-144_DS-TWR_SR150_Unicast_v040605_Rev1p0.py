@@ -602,7 +602,7 @@ def main():
     output("adding commands to the queue completed", uart_interface)
     
     #set the log file name with device role and date time
-    results_filename = f"ranging_{device_role}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    results_filename = f"test_data/ranging_{device_role}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
     set_log_file(results_filename)
     output("Logging results to: " + results_filename, uart_interface)
 
