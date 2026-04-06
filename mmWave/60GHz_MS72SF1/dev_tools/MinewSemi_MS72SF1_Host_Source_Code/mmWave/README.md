@@ -1,9 +1,11 @@
 # Running mmWave.py on Raspberry Pi
 ## 1. Connect to the EDIC wifi
 ## 2. SSH into RPI with X11 forwarding enabled (the -X)
-`ssh -X rpi0@______`
+(make sure to start your X server if not on Linux; ie. Xming through XLaunch)
 
-the raspberry pi password is the same as the hostname
+`ssh -X rpi0@wpiuwb`
+
+the raspberry pi password is `rpi0`
 
 If on Windows, make sure to point the DISPLAY variable to Xming (or whatever X server you are using)
 
