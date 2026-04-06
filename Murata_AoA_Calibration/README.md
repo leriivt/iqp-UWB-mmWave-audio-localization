@@ -46,7 +46,7 @@ Plug your laptop into the UWB board.
 
 Should see the COM port listed under the *Ports* section as *Universal Serial Port*.
 
-run: (make sure to change the COM port to the correct number)
+run: (make sure to **change the COM port** to the correct number)
 ```bash
 .\DK6Programmer.exe -V 0 -P 1000000 -s COM12 -Y -p pnp3MFW_Rhodes4_SR150-v04.08.01.bin
 ```
