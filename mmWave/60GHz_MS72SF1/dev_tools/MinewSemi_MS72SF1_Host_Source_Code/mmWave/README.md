@@ -5,7 +5,7 @@
 
 `ssh -X rpi0@wpiuwb`
 
-the raspberry pi password is `rpi0`
+the raspberry pi password is `wpiuwb`
 
 If on Windows, make sure to point the DISPLAY variable to Xming (or whatever X server you are using)
 
