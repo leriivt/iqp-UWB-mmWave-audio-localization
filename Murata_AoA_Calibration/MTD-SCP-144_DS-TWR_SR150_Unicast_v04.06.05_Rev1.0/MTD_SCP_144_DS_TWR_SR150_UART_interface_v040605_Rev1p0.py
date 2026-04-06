@@ -41,6 +41,15 @@ waitting_for_session_handle = True
 UWB_EXT_READ_CALIB_DATA_XTAL_CAP_NTF = bytes([0x6A, 0x01, 0x00, 0x05])
 UWB_EXT_READ_CALIB_DATA_TX_POWER_NTF = bytes([0x6A, 0x01, 0x00, 0x06])
 
+
+log_file = None
+
+def set_log_file(filepath):
+    global log_file
+    log_file = open(filepath, 'w')
+    log_file.write("Timestamp,Sequence,NLoS,Distance_cm,Azimuth_deg,Elevation_deg,Azimuth_FOM,Elevation_FOM,RSSI,PDoA1,PDoA2\n")
+    log_file.flush()
+
 # Definition of the different element needed for the application
 class UartInterface:
     last_session_started = [0x00, 0x00, 0x00, 0x00]
@@ -465,6 +474,12 @@ def read_from_serial_port(uart_interface):
                                         #output("***    Dest Azimuth:%.1f (Avg:%.1f)   Dest Elevation:%.1f (Avg:%.1f)" \
                                         #    % (meas_dest_azimuth, avg_dest_azimuth, meas_dest_elevation, avg_dest_elevation), uart_interface)
                                         
+                                        #write measurements into log file
+                                        global log_file
+                                        if log_file is not None:
+                                            log_file.write(f"{datetime.now().isoformat()},{seq_cnt},{meas_nlos},{meas_distance},{meas_azimuth},{meas_elevation},{meas_azimuth_fom},{meas_elevation_fom},{meas_rssi},{meas_pdoa1},{meas_pdoa2}\n")
+                                            log_file.flush()
+
                                         if (uart_interface.is_range_plot):
                                             # Store range data for plot
                                             uart_interface.range_plot["index"] = seq_cnt

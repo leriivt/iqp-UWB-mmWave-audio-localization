@@ -601,6 +601,11 @@ def main():
         uart_interface.command_queue.put(P2P_Ranging[x])
     output("adding commands to the queue completed", uart_interface)
     
+    #set the log file name with device role and date time
+    results_filename = f"ranging_{device_role}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    set_log_file(results_filename)
+    output("Logging results to: " + results_filename, uart_interface)
+
     output("Start processing...", uart_interface)
     start_processing(uart_interface)
     output("Processing finished", uart_interface)
