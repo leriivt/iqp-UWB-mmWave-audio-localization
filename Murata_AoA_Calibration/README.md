@@ -36,7 +36,7 @@ cd DK6Programmer
 
 Plug your laptop into the UWB board.
 
-Check the COM port of the UWB board by searching "device manager" in Windows start and open the application.
+**Check the COM port of the UWB board by searching "device manager" in Windows start and open the application.**
 
 Should see the COM port listed under the Ports section
 
