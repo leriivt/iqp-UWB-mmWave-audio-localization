@@ -11,7 +11,7 @@ To activate venv:
 `./~/venvs/AoA_calibration/Scripts/Activate.ps1`
 
 Install necessary libraries:
-`pip install Pillow matplotlib psutil pyserial`
+`pip zmq pyserial matplotlib numpy pycryptodome PyYAML`
 ## 1. Clone this repository
 Run the following in Windows Powershell:
 ```bash
