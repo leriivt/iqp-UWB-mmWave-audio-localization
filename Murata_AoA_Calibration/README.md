@@ -15,7 +15,7 @@ To activate venv:
 >```
 
 **Install necessary libraries:**
-`pip zmq pyserial matplotlib numpy pycryptodome PyYAML`
+`pip install zmq pyserial matplotlib numpy pycryptodome PyYAML`
 ## 1. Clone this repository
 Run the following in Windows Powershell:
 ```bash
