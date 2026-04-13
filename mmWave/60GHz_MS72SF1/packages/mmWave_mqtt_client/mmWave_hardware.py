@@ -3,7 +3,8 @@
 import json
 import logging
 import threading
-import time
+import struct
+from typing import Callable, Optional
 from dataclasses import dataclass
 
 
@@ -13,6 +14,13 @@ except ImportError:
     serial = None
 
 from .config import mmWaveConfig
+
+# Setup JSON logging
+logging.basicConfig(
+    format='{"timestamp": "%(asctime)s", "level": "%(levelname)s", "message": %(message)s}',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -24,21 +32,13 @@ class mmWaveTotalData:
 
 @dataclass
 class mmWaveFrame:
-    frame_header: str = ""
-    total_length: int = 0
     current_frame_count: int = 0
-    TLV1: int = 0 #TLV serves as a separator between different types of data. 01 00 00 00 is followed by point cloud data, while 02 00 00 00 is followed by people count data.
-    constant: int = 0
-    TLV2: int = 0
-    length_of_personnel_data: int = 0
-    reserved: str = ""
     personnel: list = None
 
 @dataclass
 class mmWavePersonnelFrame:
-    new_id: str = ""
     id: int = 0
-    reserved: str = ""
+
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
@@ -48,68 +48,157 @@ class mmWavePersonnelFrame:
     speed_z: float = 0.0
 
 
-class mmWaveHardwareInterface:
+def bytes_to_float(b: bytes) -> float:
+    """Convert 4 bytes to a float (assuming IEEE 754 format)."""   
+    return struct.unpack('<f', b)[0]  # little-endian float
 
+
+MAGIC_HEADER = b'\x01\x02\x03\x04\x05\x06\x07\x08'
+
+class mmWaveHardwareInterface:
     def __init__(self, config: mmWaveConfig):
         self.config = config
         self.serial_conn = None
         self.running = False
-        self.mmWave_total_data = mmWaveTotalData()
+        #self.mmWave_total_data = mmWaveTotalData()
+        self.measurement_callback: Optional[Callable[[mmWaveFrame], None]] = None
+
+        #buffer for incoming serial data
+        self.buffer = bytearray()
+
+    def set_measurement_callback(self, callback: Callable[[mmWaveFrame], None]):
+        """Set callback for processed measurements.
+            The callback allows you to feed in a function that
+            will be called with each new mmWaveFrame after it's processed.
+            Can be used to add the frames to a queue of send it through MQTT
+        """
+        self.measurement_callback = callback
 
 
 
-    def start(self) --> bool:
-        '''Start the mmWave hardware interface'''
+    def start(self) -> bool:
         try:
             if serial is None:
                 raise ImportError("pyserial not available")
         
-        self.serial_conn = serial.Serial(
-            self.config.serial_port,
-            self.config.baud_rate
-        )
+            self.serial_conn = serial.Serial(
+                self.config.serial_port,
+                self.config.baud_rate
+            )
+      
+            self.running = True
 
-        self.running = True
+            # Start reading thread
+            self.read_thread = threading.Thread(target=self._read_serial_loop, daemon=True)
+            self.read_thread.start()
 
-        # Start reading thread
-        self.read_thread = threading.Thread(target=self._read_serial_loop, daemon=True)
-        self.read_thread.start()
+            return True
+        
+        except Exception as e:
+            logger.error(json.dumps({
+                "event": "mmWave_interface_start_failed",
+                "error": str(e),
+                "serial_port": self.config.serial_port
+            }))
+            return False
+
 
     def _read_serial_loop(self):
+        while self.running:
+            data = self.serial_conn.read(self.serial_conn.in_waiting or 1)
+            if data:
+                self.buffer.extend(data)
 
-    '''
-    Takes in a hex string of mmWave data, parses it according 
-    to the mmWave frame protocol, and updates the SYS_mmWave_total_data object 
-    with the current number of people and their IDs. 
+                self._process_buffer()
+
+            
+            
+    def _process_buffer(self):
+        """Process the buffer to extract complete frames and update total data."""
+        while True:
+            index = self.buffer.find(MAGIC_HEADER)
+            if index == -1: #cant find any more frames in the buffer
+                break
+            # Discard bytes before magic word
+            if index > 0:
+                self.buffer = self.buffer[index:]
+            # Check if we have enough for a header
+            if len(self.buffer) < 12:  # header size varies by SDK
+                break
+            frame_len = int.from_bytes(self.buffer[8:12], 'little') #little endian
+            # Check if we have the full frame
+            if len(self.buffer) < frame_len:
+                break
+            frame_bytes = bytes(self.buffer[:frame_len])
+            self.buffer = self.buffer[frame_len:]
+
+            processed_frame = self._parse_frame(frame_bytes)
+            if processed_frame is None:
+                continue  # skip bad frame, keep processing buffer
+
+            #use the callback function once we process a frame
+            if self.measurement_callback:
+                self.measurement_callback(processed_frame)
+                 
     
-    It also puts the effective personnel data into a queue for further processing.
     '''
-    def mmWave_frame_protocol_parsing(self, data): #data is in hex characters (hex string i think)
-        len1 = len(data)
-        if len1 < 64: #frames should always be longer than 64 hex characters
-            print("Error frame length")
-            return -1
+    HEAD    8 bytes
+    LEN     4 bytes (little endian)
+    FRAME COUNT 4 bytes (little endian)
+    TLV1    4 bytes (01 00 00 00)
+    POINT CLOUD DATA LEN 4 bytes (constant value 0)
+    TLV2    4 bytes (02 00 00 00)
+    PERSONNEL DATA LEN 4 bytes (length of personnel data in bytes, should be a multiple of 32 since each person has 32 bytes of data)
+    PERSONNEL DATA (32 bytes per person, contains ID and distance info for each person)
+    '''
+    #helper function to parse a complete frame of data into a mmWaveFrame object
+    def _parse_frame(self, frame_bytes: bytes):
+        frame_len = len(frame_bytes)
+        if frame_len < 32: #frames should always be longer than 32 bytes
+            logger.warning(json.dumps({
+                "event": "frame_too_short",
+                "frame_length": len(frame_bytes),
+                "minimum_length": 32
+            }))
+            return None
+
         new_mmWave_frame = mmWaveFrame()  #define a new Frame
-        new_mmWave_frame.frame_header = data[:16] #first 8bytes are header (corresponding to 16 hex characters)
-        d1 = data[16:24] #4 bytes for length
-        new_mmWave_frame.total_length = hex_string_to_int(d1)
-        d1 = data[24:32] #4 bytes for frame count
-        new_mmWave_frame.current_frame_count = hex_string_to_int(d1)
-        d1 = data[32:40] #4 bytes for TLV1 (01 00 00 00)
-        new_mmWave_frame.TLV1 = hex_string_to_int(d1)
-        d1 = data[40:48] #4 bytes for point cloud data length (constant value 0) (why is dont they give us point cloud data?)
-        new_mmWave_frame.constant = hex_string_to_int(d1)
-        d1 = data[48:56] #4 bytes for TLV2 (02 00 00 00)
-        new_mmWave_frame.TLV2 = hex_string_to_int(d1)
-        d1 = data[56:64] #4 bytes for personnel data length
-        d2 = hex_string_to_int(d1)
-        d3 = int(d2 / 32) #number of personnel
-        new_mmWave_frame.length_of_personnel_data = d3
+        new_mmWave_frame.current_frame_count = int.from_bytes(frame_bytes[12:16], 'little')
 
-        effective_data = data[64:] #all the rest of the data is personell data
+        #bytes 16 to 28 are TLV tags and constant values, skip them
 
-        self.mmWave_total_data.current_number_of_people = d3
-        # print("Current_number_of_people = ", d3)
-        self.mmWave_coordinate_q.put(effective_data)  
-        
-        return 0
+        #length_of_personnel_data = int.from_bytes(frame_bytes[28:32], 'little')
+        #number_of_personnel = int(length_of_personnel_data / 32)
+        personnel_data = frame_bytes[32:] #all the rest of the data is personnel data
+        new_mmWave_frame.personnel = self._parse_personnel_data(personnel_data)
+
+        return new_mmWave_frame
+
+    #helper function to parse the personnel data section of a frame 
+    #into a list of mmWavePersonnelFrame objects
+    def _parse_personnel_data(self, personnel_bytes: bytes):
+        personnel_list = []
+        for i in range(0, len(personnel_bytes), 32):
+            person_data = personnel_bytes[i:i+32]
+
+            new_mmWave_personnel_frame = mmWavePersonnelFrame()
+            
+            #parse person data into ID and distance info
+            #note: first 4 bytes are reserved and unused
+            new_mmWave_personnel_frame.id = int.from_bytes(person_data[4:8], 'little')
+
+            new_mmWave_personnel_frame.x = bytes_to_float(person_data[8:12])
+            new_mmWave_personnel_frame.y = bytes_to_float(person_data[12:16])
+            new_mmWave_personnel_frame.z = bytes_to_float(person_data[16:20])
+
+            new_mmWave_personnel_frame.speed_x = bytes_to_float(person_data[20:24])
+            new_mmWave_personnel_frame.speed_y = bytes_to_float(person_data[24:28])
+            new_mmWave_personnel_frame.speed_z = bytes_to_float(person_data[28:32])
+
+            personnel_list.append(new_mmWave_personnel_frame)
+        return personnel_list
+    
+    def stop(self):
+        self.running = False
+        self.serial_conn.close()
+
