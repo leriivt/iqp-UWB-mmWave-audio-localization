@@ -34,6 +34,7 @@ class mmWaveTotalData:
 class mmWaveFrame:
     current_frame_count: int = 0
     personnel: list = None
+    point_cloud: list = None
 
 @dataclass
 class mmWavePersonnelFrame:
@@ -47,6 +48,17 @@ class mmWavePersonnelFrame:
     speed_y: float = 0.0
     speed_z: float = 0.0
 
+@dataclass
+class mmWavePointCloudFrame:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+
+    v: float = 0
+    snr: float = 0
+    id: float = 0
+    power: float = 0
+
 
 def bytes_to_float(b: bytes) -> float:
     """Convert 4 bytes to a float (assuming IEEE 754 format)."""   
@@ -56,7 +68,7 @@ def bytes_to_float(b: bytes) -> float:
 MAGIC_HEADER = b'\x01\x02\x03\x04\x05\x06\x07\x08'
 
 class mmWaveHardwareInterface:
-    def __init__(self, config: mmWaveConfig):
+    def __init__(self, config: mmWaveConfig, mode: int = 0):
         self.config = config
         self.serial_conn = None
         self.running = False
@@ -123,7 +135,7 @@ class mmWaveHardwareInterface:
             if index > 0:
                 self.buffer = self.buffer[index:]
             # Check if we have enough for a header
-            if len(self.buffer) < 12:  # header size varies by SDK
+            if len(self.buffer) < 12:
                 break
             frame_len = int.from_bytes(self.buffer[8:12], 'little') #little endian
             # Check if we have the full frame
@@ -164,13 +176,23 @@ class mmWaveHardwareInterface:
 
         new_mmWave_frame = mmWaveFrame()  #define a new Frame
         new_mmWave_frame.current_frame_count = int.from_bytes(frame_bytes[12:16], 'little')
+        
+        
+        if (self.mode == 0): #if we are looking at personnel data
+            #bytes 16 to 28 are TLV tags and constant values, skip them
 
-        #bytes 16 to 28 are TLV tags and constant values, skip them
+            #length_of_personnel_data = int.from_bytes(frame_bytes[28:32], 'little')
+            #number_of_personnel = int(length_of_personnel_data / 32)
+        
+            personnel_data = frame_bytes[32:] #all the rest of the data is personnel data
+            new_mmWave_frame.personnel = self._parse_personnel_data(personnel_data)
 
-        #length_of_personnel_data = int.from_bytes(frame_bytes[28:32], 'little')
-        #number_of_personnel = int(length_of_personnel_data / 32)
-        personnel_data = frame_bytes[32:] #all the rest of the data is personnel data
-        new_mmWave_frame.personnel = self._parse_personnel_data(personnel_data)
+        if (self.mode == 1): #if we are looking at point cloud data
+            #bytes 16 to 20 are TLV tag 1
+            point_cloud_data_len = int.from_bytes(frame_bytes[20:24], 'little')
+
+            point_cloud_data = frame_bytes[24:24+point_cloud_data_len]
+            new_mmWave_frame.point_cloud = self._parse_point_cloud_data(point_cloud_data)
 
         return new_mmWave_frame
 
@@ -197,6 +219,27 @@ class mmWaveHardwareInterface:
 
             personnel_list.append(new_mmWave_personnel_frame)
         return personnel_list
+
+    #helper function to parse the point cloud data section of a frame
+    #into a list of mmWavePointCloudFrame objects
+    def _parse_point_cloud_data(self, point_cloud_bytes: bytes):
+        point_cloud_list = []
+        for i in range(0, len(point_cloud_bytes), 25):
+            point_data = point_cloud_bytes[i:i+25]
+
+            new_mmWave_point_cloud_frame = mmWavePointCloudFrame()
+
+            new_mmWave_point_cloud_frame.x = bytes_to_float(point_data[0:4])
+            new_mmWave_point_cloud_frame.y = bytes_to_float(point_data[4:8])
+            new_mmWave_point_cloud_frame.z = bytes_to_float(point_data[8:12])
+
+            new_mmWave_point_cloud_frame.v = point_data[12] * 0.11 #multipy by 0.11m/s to get true velocity
+            new_mmWave_point_cloud_frame.snr = bytes_to_float(point_data[13:17])
+            new_mmWave_point_cloud_frame.id = bytes_to_float(point_data[17:21])
+            new_mmWave_point_cloud_frame.power = bytes_to_float(point_data[21:25])
+
+            point_cloud_list.append(new_mmWave_point_cloud_frame)
+        return point_cloud_list
     
     def stop(self):
         self.running = False
