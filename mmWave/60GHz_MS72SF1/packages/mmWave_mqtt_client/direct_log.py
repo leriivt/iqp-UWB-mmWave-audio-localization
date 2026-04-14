@@ -1,4 +1,4 @@
-from .mmWave_hardware import *
+from mmWave_hardware import *
 import time
 
 config = mmWaveConfig()

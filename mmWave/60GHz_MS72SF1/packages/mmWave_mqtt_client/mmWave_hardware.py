@@ -13,7 +13,7 @@ try:
 except ImportError:
     serial = None
 
-from .config import mmWaveConfig
+from config import mmWaveConfig
 
 # Setup JSON logging
 logging.basicConfig(
@@ -70,6 +70,7 @@ MAGIC_HEADER = b'\x01\x02\x03\x04\x05\x06\x07\x08'
 class mmWaveHardwareInterface:
     def __init__(self, config: mmWaveConfig, mode: int = 0):
         self.config = config
+        self.mode = mode
         self.serial_conn = None
         self.running = False
         #self.mmWave_total_data = mmWaveTotalData()
