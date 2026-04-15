@@ -547,7 +547,7 @@ class mmWaveVisualizer(QMainWindow):
         self._spark_timer.timeout.connect(self._update_sparklines)
         self._spark_timer.start(500)
 
-        self.source.start()
+        #self.source.start()
 
     # ── UI construction ───────────────────────────────────────────────────────
     def _build_ui(self):
