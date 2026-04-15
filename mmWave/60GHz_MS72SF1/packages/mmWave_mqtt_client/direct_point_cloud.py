@@ -14,4 +14,4 @@ window = mmWaveVisualizer()
 integrate_with_hardware(window, hardware_interface)   # hardware_interface is your mmWaveHardwareInterface
 hardware_interface.start()
 window.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())
