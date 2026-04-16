@@ -178,7 +178,7 @@ class mmWaveHardwareInterface:
         new_mmWave_frame = mmWaveFrame()  #define a new Frame
         new_mmWave_frame.current_frame_count = int.from_bytes(frame_bytes[12:16], 'little')
         
-        
+        '''
         if (self.mode == 0): #if we are looking at personnel data
             #bytes 16 to 28 are TLV tags and constant values, skip them
 
@@ -194,6 +194,17 @@ class mmWaveHardwareInterface:
 
             point_cloud_data = frame_bytes[24:24+point_cloud_data_len]
             new_mmWave_frame.point_cloud = self._parse_point_cloud_data(point_cloud_data)
+        '''
+        #bytes 16 to 20 are TLV tag 1
+        point_cloud_data_len = int.from_bytes(frame_bytes[20:24], 'little')
+        point_cloud_end_index = 24 + point_cloud_data_len
+        point_cloud_data = frame_bytes[24:point_cloud_end_index]
+        new_mmWave_frame.point_cloud = self._parse_point_cloud_data(point_cloud_data)
+
+
+        #4 bytes after point cloud data is TLV tag 2, then 4 bytes of personnel data length
+        personnel_data = frame_bytes[point_cloud_end_index + 4 + 4:] #all the rest of the data is personnel data
+        new_mmWave_frame.personnel = self._parse_personnel_data(personnel_data)
 
         return new_mmWave_frame
 
