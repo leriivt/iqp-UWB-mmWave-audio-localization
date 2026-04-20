@@ -597,11 +597,19 @@ class PersonnelView(pg.PlotWidget):
                 self._person_labels[pid] = label
             if self.is_ceiling:
                 self._person_labels[pid].setPos(person.x, person.y)
+                self._person_labels[pid].setText(
+                    f"P{pid}\n{person.x:.2f},{person.y:.2f}"
+                )
             else:
                 self._person_labels[pid].setPos(person.y, person.z)
+                self._person_labels[pid].setText(
+                    f"P{pid}\n{person.y:.2f},{person.z:.2f}"
+                )
+            '''
             self._person_labels[pid].setText(
                 f"P{pid}\n{speed:.2f} m/s"
             )
+            '''
 
         # Hide items for persons no longer in the frame
         for pid in list(self._active_ids - seen_ids):
