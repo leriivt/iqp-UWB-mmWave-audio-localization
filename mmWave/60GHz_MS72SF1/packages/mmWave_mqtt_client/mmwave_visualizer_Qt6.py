@@ -547,11 +547,18 @@ class PersonnelView(pg.PlotWidget):
                 scatter = pg.ScatterPlotItem(pen=None, symbol='o', size=22)
                 self.addItem(scatter)
                 self._person_scatter[pid] = scatter
-            self._person_scatter[pid].setData(
-                [{'pos': (person.x, person.y),
-                  'brush': pg.mkBrush(QColor(colour).darker(130)),
-                  'pen':   pg.mkPen(colour, width=2)}]
-            )
+            if self.is_ceiling:
+                self._person_scatter[pid].setData(
+                    [{'pos': (person.x, person.y),
+                      'brush': pg.mkBrush(QColor(colour).darker(130)),
+                      'pen':   pg.mkPen(colour, width=2)}]
+                )
+            else:
+                self._person_scatter[pid].setData(
+                    [{'pos': (person.y, person.z),
+                      'brush': pg.mkBrush(QColor(colour).darker(130)),
+                      'pen':   pg.mkPen(colour, width=2)}]
+                )
 
             # ── velocity arrow ──
             speed = math.hypot(person.speed_x, person.speed_y)
@@ -569,10 +576,11 @@ class PersonnelView(pg.PlotWidget):
             if speed > 0.02:
                 if self.is_ceiling:
                     angle_deg = math.degrees(math.atan2(-person.speed_x, person.speed_y))
+                    arrow.setPos(person.x, person.y)
                 else:
-                    angle_deg = math.degrees(math.atan2(person.speed_y, person.speed_z))
+                    angle_deg = math.degrees(math.atan2(-person.speed_y, person.speed_z))
+                    arrow.setPos(person.y, person.z)
                 arrow.setStyle(angle=90 - angle_deg)
-                arrow.setPos(person.x, person.y)
                 arrow.setVisible(True)
             else:
                 arrow.setVisible(False)
@@ -1069,6 +1077,6 @@ if __name__ == "__main__":
     pal.setColor(QPalette.ColorRole.HighlightedText, QColor(PALETTE['bg']))
     app.setPalette(pal)
 
-    window = mmWaveVisualizer()
+    window = mmWaveVisualizer(is_ceiling=False)
     window.show()
     sys.exit(app.exec())
