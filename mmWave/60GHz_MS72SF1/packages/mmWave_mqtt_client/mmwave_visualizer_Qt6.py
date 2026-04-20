@@ -206,12 +206,17 @@ class mmWaveFrame:
 class MockDataGenerator(QObject):
     frame_ready = pyqtSignal(object)
 
-    def __init__(self, fps: float = 10.0):
+    def __init__(self, fps: float = 5.0):
         super().__init__()
         self.fps = fps
         self._running = False
         self._frame_count = 0
         self._thread: Optional[QThread] = None
+        
+        #read in from a file of frames
+        self._frames = np.load("mmWave_frames_1776325128.npy", allow_pickle=True) 
+        self._frame_index = 0
+        self._total_frames = len(self._frames)
 
     def start(self):
         self._running = True
@@ -229,6 +234,8 @@ class MockDataGenerator(QObject):
 
     def _generate_frame(self) -> mmWaveFrame:
         self._frame_count += 1
+
+        ''' #UNCOMMENT FOR RANDOM POINT CLOUD
         t = time.time()
         n = random.randint(30, 120)
         points = []
@@ -256,6 +263,10 @@ class MockDataGenerator(QObject):
             points.append(p)
 
         frame = mmWaveFrame(current_frame_count=self._frame_count, point_cloud=points)
+        '''
+
+        frame = self._frames[self._frame_index]
+        self._frame_index = (self._frame_index + 1) % self._total_frames #loop through the frames in the file
         return frame
 
 
@@ -426,8 +437,9 @@ class View3D(gl.GLViewWidget):
 
 # ── 2-D top-down scatter (XY plane) ──────────────────────────────────────────
 class View2D(pg.PlotWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, is_ceiling=True):
         super().__init__(parent=parent)
+        self.is_ceiling = is_ceiling
         self.setBackground(PALETTE['bg'])
         self.showGrid(x=True, y=True, alpha=0.15)
         self.setLabel('left',  'Y (depth)', units='m',
@@ -441,8 +453,8 @@ class View2D(pg.PlotWidget):
         self._scatter = pg.ScatterPlotItem(pen=None, symbol='o')
         self.addItem(self._scatter)
 
-        # Detection range ring (e.g. 6 m)
-        ring = pg.QtWidgets.QGraphicsEllipseItem(-6, 0, 12, 12)
+        # Detection range ring (e.g. 3 m)
+        ring = pg.QtWidgets.QGraphicsEllipseItem(-3, -3, 6, 6)
         ring.setPen(pg.mkPen(PALETTE['border'], style=Qt.PenStyle.DashLine))
         ring.setBrush(pg.mkBrush(None))
         self.addItem(ring)
@@ -460,13 +472,136 @@ class View2D(pg.PlotWidget):
             self._scatter.setData([])
             return
         rgba = _make_colormap_rgba(points, colormap_mode)
-        spots = [
-            {'pos': (p.x, p.y),
-             'brush': pg.mkBrush(*[int(c * 255) for c in rgba[i]]),
-             'size': 6}
-            for i, p in enumerate(points)
-        ]
+        if self.is_ceiling:
+            spots = [
+                {'pos': (p.x, p.y),
+                 'brush': pg.mkBrush(*[int(c * 255) for c in rgba[i]]),
+                 'size': 6}
+                for i, p in enumerate(points)
+            ]
+        else:
+            spots = [
+                {'pos': (p.y, p.z),
+                 'brush': pg.mkBrush(*[int(c * 255) for c in rgba[i]]),
+                 'size': 6}
+                for i, p in enumerate(points)
+            ]
         self._scatter.setData(spots)
+
+
+# ── Personnel top-down view ───────────────────────────────────────────────────
+# Colour palette for up to 8 tracked persons (cycles if more)
+_PERSON_COLOURS = [
+    "#00d4ff", "#ff6b35", "#39ff14", "#ff3355",
+    "#ffaa00", "#bf5fff", "#00ffcc", "#ff007f",
+]
+
+class PersonnelView(pg.PlotWidget):
+    """Top-down (XY) view showing tracked personnel as labelled blobs
+    with a short velocity arrow indicating direction of travel."""
+
+    def __init__(self, parent=None, is_ceiling=True):
+        super().__init__(parent=parent)
+        self.is_ceiling = is_ceiling
+        self.setBackground(PALETTE['bg'])
+        self.showGrid(x=True, y=True, alpha=0.15)
+        self.setLabel('left',   'Y (depth)',   units='m',
+                      **{"color": PALETTE['text_dim'], "font-size": "10px"})
+        self.setLabel('bottom', 'X (lateral)', units='m',
+                      **{"color": PALETTE['text_dim'], "font-size": "10px"})
+        self.getAxis('left').setTextPen(PALETTE['text_dim'])
+        self.getAxis('bottom').setTextPen(PALETTE['text_dim'])
+        self.setAspectLocked(True)
+        self.setTitle("PERSONNEL", color=PALETTE['accent'], size='9pt')
+
+        # Detection range ring
+        ring = pg.QtWidgets.QGraphicsEllipseItem(-3, -3, 6, 6)
+        ring.setPen(pg.mkPen(PALETTE['border'], style=Qt.PenStyle.DashLine))
+        ring.setBrush(pg.mkBrush(None))
+        self.addItem(ring)
+
+        # Sensor origin marker
+        sensor = pg.ScatterPlotItem(
+            [{'pos': (0, 0), 'symbol': 't', 'size': 14,
+              'brush': pg.mkBrush(PALETTE['accent']),
+              'pen': pg.mkPen(None)}]
+        )
+        self.addItem(sensor)
+
+        # Per-person items created lazily and reused
+        self._person_scatter: dict = {}   # id -> ScatterPlotItem  (blob)
+        self._person_arrows:  dict = {}   # id -> ArrowItem        (velocity)
+        self._person_labels:  dict = {}   # id -> TextItem         (ID label)
+        self._active_ids: set = set()
+
+    def update_personnel(self, personnel: list):
+        seen_ids = set()
+
+        for person in personnel:
+            pid = person.id
+            seen_ids.add(pid)
+            colour = _PERSON_COLOURS[pid % len(_PERSON_COLOURS)]
+
+            # ── blob ──
+            if pid not in self._person_scatter:
+                scatter = pg.ScatterPlotItem(pen=None, symbol='o', size=22)
+                self.addItem(scatter)
+                self._person_scatter[pid] = scatter
+            self._person_scatter[pid].setData(
+                [{'pos': (person.x, person.y),
+                  'brush': pg.mkBrush(QColor(colour).darker(130)),
+                  'pen':   pg.mkPen(colour, width=2)}]
+            )
+
+            # ── velocity arrow ──
+            speed = math.hypot(person.speed_x, person.speed_y)
+            if pid not in self._person_arrows:
+                arrow = pg.ArrowItem(
+                    angle=90, tipAngle=30, baseAngle=20,
+                    headLen=14, tailLen=20, tailWidth=3,
+                    pen=pg.mkPen(colour, width=1),
+                    brush=pg.mkBrush(colour),
+                )
+                self.addItem(arrow)
+                self._person_arrows[pid] = arrow
+
+            arrow = self._person_arrows[pid]
+            if speed > 0.02:
+                if self.is_ceiling:
+                    angle_deg = math.degrees(math.atan2(-person.speed_x, person.speed_y))
+                else:
+                    angle_deg = math.degrees(math.atan2(person.speed_y, person.speed_z))
+                arrow.setStyle(angle=90 - angle_deg)
+                arrow.setPos(person.x, person.y)
+                arrow.setVisible(True)
+            else:
+                arrow.setVisible(False)
+
+            # ── ID label ──
+            if pid not in self._person_labels:
+                label = pg.TextItem(
+                    text=f"P{pid}",
+                    color=colour,
+                    anchor=(0.5, 1.6),
+                )
+                label.setFont(QFont("Consolas", 8, QFont.Weight.Bold))
+                self.addItem(label)
+                self._person_labels[pid] = label
+            if self.is_ceiling:
+                self._person_labels[pid].setPos(person.x, person.y)
+            else:
+                self._person_labels[pid].setPos(person.y, person.z)
+            self._person_labels[pid].setText(
+                f"P{pid}\n{speed:.2f} m/s"
+            )
+
+        # Hide items for persons no longer in the frame
+        for pid in list(self._active_ids - seen_ids):
+            self._person_scatter[pid].setData([])
+            self._person_arrows[pid].setVisible(False)
+            self._person_labels[pid].setText("")
+
+        self._active_ids = seen_ids
 
 
 # ── Point count / FPS sparkline ───────────────────────────────────────────────
@@ -521,11 +656,12 @@ class PointTable(QTableWidget):
 
 # ── Main window ───────────────────────────────────────────────────────────────
 class mmWaveVisualizer(QMainWindow):
-    def __init__(self):
+    def __init__(self, is_ceiling=True):
         super().__init__()
         self.setWindowTitle("mmWave Point Cloud Visualizer")
         self.resize(1380, 820)
         self.setStyleSheet(QSS)
+        self.is_ceiling = is_ceiling
 
         self.history = PointCloudHistory(max_frames=5)
         self.source = MockDataGenerator(fps=10.0)
@@ -547,7 +683,7 @@ class mmWaveVisualizer(QMainWindow):
         self._spark_timer.timeout.connect(self._update_sparklines)
         self._spark_timer.start(500)
 
-        #self.source.start()
+        self.source.start()
 
     # ── UI construction ───────────────────────────────────────────────────────
     def _build_ui(self):
@@ -571,16 +707,28 @@ class mmWaveVisualizer(QMainWindow):
         header = self._build_header()
         main_lay.addWidget(header)
 
+        # Centre row: tab widget (point cloud views) + personnel panel
+        centre_row = QWidget()
+        centre_lay = QHBoxLayout(centre_row)
+        centre_lay.setSpacing(6)
+        centre_lay.setContentsMargins(0, 0, 0, 0)
+
         # Tabs: 3D / 2D top-down / data table
         self.tabs = QTabWidget()
         self.view3d = View3D()
-        self.view2d = View2D()
+        self.view2d = View2D(is_ceiling=self.is_ceiling)
         self.point_table = PointTable()
 
         self.tabs.addTab(self.view3d,      "3D SCATTER")
         self.tabs.addTab(self.view2d,      "TOP-DOWN (XY)")
         self.tabs.addTab(self.point_table, "POINT DATA")
-        main_lay.addWidget(self.tabs, 1)
+        centre_lay.addWidget(self.tabs, 3)   # stretch factor 3
+
+        # Personnel panel (right side, narrower)
+        personnel_panel = self._build_personnel_panel()
+        centre_lay.addWidget(personnel_panel, 2)   # stretch factor 2
+
+        main_lay.addWidget(centre_row, 1)
 
         # Sparklines
         sparks = self._build_sparklines()
@@ -588,6 +736,35 @@ class mmWaveVisualizer(QMainWindow):
 
         root.addWidget(main_area, 1)
 
+    def _build_personnel_panel(self) -> QWidget:
+        """Right-hand panel: personnel top-down view + per-person stat cards."""
+        panel = QWidget()
+        lay = QVBoxLayout(panel)
+        lay.setSpacing(6)
+        lay.setContentsMargins(0, 0, 0, 0)
+
+        # Labelled border frame
+        box = QGroupBox("Personnel Tracking")
+        box_lay = QVBoxLayout(box)
+        box_lay.setSpacing(4)
+        box_lay.setContentsMargins(4, 8, 4, 4)
+
+        self.personnel_view = PersonnelView(is_ceiling=self.is_ceiling)
+        box_lay.addWidget(self.personnel_view, 1)
+
+        # Personnel count badge
+        count_row = QHBoxLayout()
+        count_row.addStretch()
+        self.personnel_count_lbl = QLabel("0 tracked")
+        self.personnel_count_lbl.setStyleSheet(
+            f"color: {PALETTE['accent']}; font-size: 10px; letter-spacing: 1px;"
+        )
+        count_row.addWidget(self.personnel_count_lbl)
+        box_lay.addLayout(count_row)
+
+        lay.addWidget(box, 1)
+        return panel
+    
     def _build_header(self) -> QWidget:
         w = QFrame()
         w.setStyleSheet(f"background: {PALETTE['panel']}; border: 1px solid {PALETTE['border']}; border-radius: 4px;")
@@ -765,6 +942,14 @@ class mmWaveVisualizer(QMainWindow):
             self.view2d.update_points(pts, self.color_combo.currentText())
         elif tab == 2:
             self.point_table.load_points(self.history.get_latest_points())
+
+        # Personnel panel — always updated regardless of active tab
+        personnel = frame.personnel or []
+        self.personnel_view.update_personnel(personnel)
+        n_p = len(personnel)
+        self.personnel_count_lbl.setText(
+            f"{n_p} tracked" if n_p != 1 else "1 tracked"
+        )
 
         # Stats
         n = len(pts)
