@@ -10,7 +10,7 @@ from mmwave_visualizer_Qt6 import *
 
 app = QApplication(sys.argv)
 
-window = mmWaveVisualizer()
+window = mmWaveVisualizer(is_ceiling=False)
 integrate_with_hardware(window, hardware_interface)   # hardware_interface is your mmWaveHardwareInterface
 hardware_interface.start()
 window.show()
