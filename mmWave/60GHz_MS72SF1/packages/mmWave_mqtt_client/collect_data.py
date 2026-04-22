@@ -126,8 +126,7 @@ class CollectionInterface:
                             
                         else:
                             #time.sleep(0.01) #sleep briefly to avoid busy waiting
-                            print("Warning reached timeout, retrying...")
-                            state = State.VALIDATE_FRAMES
+                            print("Warning reached timeout, retrying...") #will keep retrying, timeout just to let you know its taking longer than usual
                             break
                     state = State.VALIDATE_FRAMES
 
