@@ -52,6 +52,8 @@ def plot_error_vectors(csv_file, title='Error Vectors from Measured Points to Gr
     ax = plt.gca()
     ax.xaxis.set_major_locator(MultipleLocator(0.6))
     ax.yaxis.set_major_locator(MultipleLocator(0.6))
+    circle = plt.Circle((0, 0), radius=2.5, fill=False, linestyle='--', edgecolor='blue')
+    ax.add_patch(circle)
 
     
     plt.show()
