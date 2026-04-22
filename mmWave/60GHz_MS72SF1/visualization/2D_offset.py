@@ -53,7 +53,7 @@ def plot_error_vectors(csv_file, title='Error Vectors from Measured Points to Gr
 if __name__ == "__main__":
     csv_file = 'test_1.csv'  # Replace with your CSV file path
     plot_error_vectors(csv_file)
-    plot_error_vectors('test_0_actual.csv')
+    plot_error_vectors('test_0.csv')
     plot_error_vectors('test_2.csv', title='Error Vectors from Measured Points to Ground Truth Points (height adj)')
     plot_error_vectors('test_3.csv', title='Error Vectors from Measured Points to Ground Truth Points (default)')
     plot_error_vectors('test_4.csv', title='Error Vectors from Measured Points to Ground Truth Points (calib, height adj)')
