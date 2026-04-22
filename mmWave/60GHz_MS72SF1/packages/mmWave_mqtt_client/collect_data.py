@@ -9,6 +9,7 @@ from enum import Enum, auto
 import pickle
 
 from mmwave_visualizer_Qt6 import *
+from mock_hardware_interface import *
 
 
 class State(Enum):
@@ -20,7 +21,7 @@ class State(Enum):
     DONE              = auto()
 
 class CollectionInterface:
-    def __init__(self, hardware_interface: mmWaveHardwareInterface, reference_csv: str):
+    def __init__(self, hardware_interface, reference_csv: str):
         self.hardware_interface = hardware_interface
         self.frames_threshold = 100
         #self.is_new_frame = True
@@ -151,7 +152,8 @@ class CollectionInterface:
                     self.save_frames_to_csv(test_point, valid_frames, personnel_id)
                     self.save_frames_to_pkl(valid_frames)
                     self.frame_list.clear()
-                    state = State.DONE       
+                    state = State.DONE
+        print("Collection complete! You may close out of visualizer")       
 
 
     def check_valid_id(self, personnel_id: str):
@@ -207,12 +209,13 @@ def combine_callbacks(app_window: mmWaveVisualizer, collection_interface: Collec
     return combined
 
 #whenever get a new mmWave frame, both visualizer and collection_interface will update
-def integrate_hardware_visualizer_collection(hardware_interface: mmWaveHardwareInterface, app_window: mmWaveVisualizer, collection_interface: CollectionInterface):
+def integrate_hardware_visualizer_collection(hardware_interface, app_window: mmWaveVisualizer, collection_interface: CollectionInterface):
     callback = combine_callbacks(app_window, collection_interface)
     hardware_interface.set_measurement_callback(callback)
 
 
 if __name__ == "__main__":
+    '''
     config = mmWaveConfig()
     hardware_interface = mmWaveHardwareInterface(config)
     
@@ -224,6 +227,23 @@ if __name__ == "__main__":
     integrate_hardware_visualizer_collection(hardware_interface, window, collection_interface)   # hardware_interface is your mmWaveHardwareInterface
 
     hardware_interface.start()
+    window.show()
+    collection_interface.start()
+
+    sys.exit(app.exec())
+    '''
+
+    #below this is for validating if this code works
+    mock_hardware_interface = MockHardwareInterface()
+
+    app = QApplication(sys.argv)
+    window = mmWaveVisualizer(is_ceiling=False)
+
+    collection_interface = CollectionInterface(mock_hardware_interface, "wall_reference.csv")
+
+    integrate_hardware_visualizer_collection(mock_hardware_interface, window, collection_interface)   # hardware_interface is your mmWaveHardwareInterface
+
+    mock_hardware_interface.start()
     window.show()
     collection_interface.start()
 
