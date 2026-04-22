@@ -2,7 +2,7 @@ from mmWave_hardware import *
 import time
 
 config = mmWaveConfig()
-hardware_interface = mmWaveHardwareInterface(config, mode=1)
+hardware_interface = mmWaveHardwareInterface(config)
 
 
 from mmwave_visualizer_Qt6 import *
