@@ -4,6 +4,7 @@ Companion GUI for mmWave_hardware.py
 Requires: PyQt6, pyqtgraph, numpy
   pip install PyQt6 pyqtgraph numpy
 """
+#self.source.start() important for testing with mock data generator
 
 import sys
 import time
