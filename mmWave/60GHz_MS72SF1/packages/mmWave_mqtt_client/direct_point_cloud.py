@@ -5,7 +5,7 @@ config = mmWaveConfig()
 hardware_interface = mmWaveHardwareInterface(config)
 
 
-from mmwave_visualizer_Qt6 import *
+from mmWave_visualizer_Qt6 import *
 
 
 app = QApplication(sys.argv)

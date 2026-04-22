@@ -8,7 +8,7 @@ import csv
 from enum import Enum, auto
 import pickle
 
-from mmwave_visualizer_Qt6 import *
+from mmWave_visualizer_Qt6 import *
 from mock_hardware_interface import *
 
 
