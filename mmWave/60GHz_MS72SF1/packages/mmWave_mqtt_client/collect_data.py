@@ -1,5 +1,6 @@
 import threading
 import time
+import sys
 
 from mmWave_hardware import *
 import numpy as np
@@ -7,10 +8,8 @@ import csv
 from enum import Enum, auto
 import pickle
 
-frame_list = []
+from mmwave_visualizer_Qt6 import *
 
-config = mmWaveConfig()
-hardware_interface = mmWaveHardwareInterface(config)
 
 class State(Enum):
     GET_PERSONNEL_ID  = auto()
@@ -22,7 +21,7 @@ class State(Enum):
 
 class CollectionInterface:
     def __init__(self, hardware_interface: mmWaveHardwareInterface, reference_csv: str):
-        #self.hardware_interface = hardware_interface
+        self.hardware_interface = hardware_interface
         self.frames_threshold = 100
         #self.is_new_frame = True
         self.new_frame_event = threading.Event()
@@ -128,6 +127,7 @@ class CollectionInterface:
                         else:
                             #time.sleep(0.01) #sleep briefly to avoid busy waiting
                             print("Warning reached timeout, retrying...")
+                            state = State.VALIDATE_FRAMES
                             break
                     state = State.VALIDATE_FRAMES
 
@@ -157,10 +157,10 @@ class CollectionInterface:
 
     def check_valid_id(self, personnel_id: str):
         #check if the personnel id is valid for the current frame
-        if self.current_frame is None:
-            print("No frame received yet")
-            return False
         with self.lock:
+            if self.current_frame is None:
+                print("No frame received yet")
+                return False
             for p in self.current_frame.personnel:
                 if str(p.id) == personnel_id:
                     return True
@@ -170,7 +170,7 @@ class CollectionInterface:
     def validate_frames(self, personnel_id: str):
         #check if the collected frames have the desired personnel id
         valid_frames = []
-        for frame in self.frame_list[len(self.frame_list)-self.frames_threshold:]:
+        for frame in self.frame_list:
             for p in frame.personnel:
                 if str(p.id) == personnel_id:
                     valid_frames.append(frame)
@@ -201,3 +201,33 @@ class CollectionInterface:
             pickle.dump(frames, f)
         print(f"Saved {len(frames)} frames to {self.output_pickle}")
 
+def combine_callbacks(app_window: mmWaveVisualizer, collection_interface: CollectionInterface):
+    def combined(frame: mmWaveFrame):
+        app_window.feed_frame(frame)
+        collection_interface.update_current_frame(frame)
+    return combined
+
+#whenever get a new mmWave frame, both visualizer and collection_interface will update
+def integrate_hardware_visualizer_collection(hardware_interface: mmWaveHardwareInterface, app_window: mmWaveVisualizer, collection_interface: CollectionInterface):
+    callback = combine_callbacks(app_window, collection_interface)
+    hardware_interface.set_measurement_callback(callback)
+
+
+if __name__ == "__main__":
+    config = mmWaveConfig()
+    hardware_interface = mmWaveHardwareInterface(config)
+    
+    app = QApplication(sys.argv)
+    window = mmWaveVisualizer(is_ceiling=False)
+
+    collection_interface = CollectionInterface(hardware_interface, "wall_reference.csv")
+
+    integrate_hardware_visualizer_collection(hardware_interface, window, collection_interface)   # hardware_interface is your mmWaveHardwareInterface
+
+    hardware_interface.start()
+    window.show()
+    collection_interface.start()
+
+    sys.exit(app.exec())
+
+    
