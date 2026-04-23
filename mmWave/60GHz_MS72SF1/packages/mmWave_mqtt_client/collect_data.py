@@ -215,7 +215,7 @@ def integrate_hardware_visualizer_collection(hardware_interface, app_window: mmW
 
 
 if __name__ == "__main__":
-    '''
+    
     config = mmWaveConfig()
     hardware_interface = mmWaveHardwareInterface(config)
     
@@ -231,8 +231,8 @@ if __name__ == "__main__":
     collection_interface.start()
 
     sys.exit(app.exec())
+    
     '''
-
     #below this is for validating if this code works
     mock_hardware_interface = MockHardwareInterface()
 
@@ -248,5 +248,5 @@ if __name__ == "__main__":
     collection_interface.start()
 
     sys.exit(app.exec())
-
+    '''
     
