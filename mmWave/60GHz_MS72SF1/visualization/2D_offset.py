@@ -33,6 +33,7 @@ def plot_error_vectors(csv_file, title='Error Vectors from Measured Points to Gr
     plt.quiver(gt_x, gt_y, meas_x - gt_x, meas_y - gt_y, angles='xy', scale_units='xy', scale=1, color='r')
     plt.scatter(gt_x, gt_y, color='g', label='Ground Truth')
     plt.scatter(meas_x, meas_y, color='b', label='Measured')
+    plt.scatter(0, 0, marker='*', s=200, color='g', edgecolors='black', linewidths=1, label='Sensor')
     plt.xlabel('X Coordinate (meters)')
     plt.ylabel('Y Coordinate (meters)')
     plt.xlim(-3.6, 3.6)
@@ -46,6 +47,10 @@ def plot_error_vectors(csv_file, title='Error Vectors from Measured Points to Gr
     ax.xaxis.set_major_locator(MultipleLocator(0.6))
     ax.yaxis.set_major_locator(MultipleLocator(0.6))
 
+
+    circle = plt.Circle((0, 0), radius=3, fill=False, linestyle='--', edgecolor='blue')
+    ax.add_patch(circle)
+
     plt.grid()
     plt.show()
 
@@ -56,6 +61,6 @@ if __name__ == "__main__":
     plot_error_vectors('test_0.csv')
     plot_error_vectors('test_2.csv', title='Error Vectors from Measured Points to Ground Truth Points (height adj)')
     plot_error_vectors('test_3.csv', title='Error Vectors from Measured Points to Ground Truth Points (default)')
-    plot_error_vectors('test_4.csv', title='Error Vectors from Measured Points to Ground Truth Points (calib, height adj)')
+    plot_error_vectors('test_4.csv', title='Error Vectors from Measured Points to Ground Truth Points (env learning, height adj)')
 
 
