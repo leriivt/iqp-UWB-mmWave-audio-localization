@@ -1,1 +1,1 @@
-Check back later for updates on the submission of the UWB code.
+Check back later for updates on the availibility of the UWB code.
